@@ -477,5 +477,8 @@ func (e *Epub) writeToc(rootEpubDir string) {
 	e.pkg.addToManifest(tocNavItemID, tocNavFilename, mediaTypeXhtml, tocNavItemProperties)
 	e.pkg.addToManifest(tocNcxItemID, tocNcxFilename, mediaTypeNcx, "")
 
+	// Set the author in the TOC for NCX generation
+	e.toc.setAuthor(e.author)
+
 	e.toc.write(rootEpubDir)
 }

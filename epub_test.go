@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bmaupin/go-epub/internal/storage"
+	"github.com/boomhut/go-epub/internal/storage"
 	"github.com/gofrs/uuid"
 )
 
@@ -252,7 +251,7 @@ func TestAddFont(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error reading testdata font file: %s", err)
 	}
-	if bytes.Compare(contents, testFontContents) != 0 {
+	if !bytes.Equal(contents, testFontContents) {
 		t.Errorf("Font file contents don't match")
 	}
 
@@ -290,7 +289,7 @@ func TestAddImage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error reading testdata image file: %s", err)
 	}
-	if bytes.Compare(contents, testImageContents) != 0 {
+	if !bytes.Equal(contents, testImageContents) {
 		t.Errorf("Image file contents don't match")
 	}
 
@@ -303,11 +302,11 @@ func TestAddImage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error response from test image URL: %s", err)
 	}
-	testImageContents, err = ioutil.ReadAll(resp.Body)
+	testImageContents, err = io.ReadAll(resp.Body)
 	if err != nil {
 		t.Errorf("Unexpected error reading test image file from URL: %s", err)
 	}
-	if bytes.Compare(contents, testImageContents) != 0 {
+	if !bytes.Equal(contents, testImageContents) {
 		t.Errorf("Image file contents don't match")
 	}
 
@@ -348,7 +347,7 @@ func TestAddVideo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error reading testdata video file: %s", err)
 	}
-	if bytes.Compare(contents, testVideoContents) != 0 {
+	if !bytes.Equal(contents, testVideoContents) {
 		t.Errorf("Video file contents don't match")
 	}
 
@@ -361,11 +360,11 @@ func TestAddVideo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error response from test video URL: %s", err)
 	}
-	testVideoContents, err = ioutil.ReadAll(resp.Body)
+	testVideoContents, err = io.ReadAll(resp.Body)
 	if err != nil {
 		t.Errorf("Unexpected error reading test video file from URL: %s", err)
 	}
-	if bytes.Compare(contents, testVideoContents) != 0 {
+	if !bytes.Equal(contents, testVideoContents) {
 		t.Errorf("Video file contents don't match")
 	}
 
@@ -405,7 +404,7 @@ func TestAddAudio(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error reading testdata audio file: %s", err)
 	}
-	if bytes.Compare(contents, testAudioContents) != 0 {
+	if !bytes.Equal(contents, testAudioContents) {
 		t.Errorf("Audio file contents don't match")
 	}
 
@@ -418,11 +417,11 @@ func TestAddAudio(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error response from test audio URL: %s", err)
 	}
-	testAudioContents, err = ioutil.ReadAll(resp.Body)
+	testAudioContents, err = io.ReadAll(resp.Body)
 	if err != nil {
 		t.Errorf("Unexpected error reading test audio file from URL: %s", err)
 	}
-	if bytes.Compare(contents, testAudioContents) != 0 {
+	if !bytes.Equal(contents, testAudioContents) {
 		t.Errorf("Audio file contents don't match")
 	}
 
@@ -1118,7 +1117,7 @@ func validateEpub(t testing.TB, epubFilename string) ([]byte, error) {
 		t.Error("Error getting working directory")
 	}
 
-	items, err := ioutil.ReadDir(cwd)
+	items, err := os.ReadDir(cwd)
 	if err != nil {
 		t.Error("Error getting contents of working directory")
 	}
@@ -1130,7 +1129,7 @@ func validateEpub(t testing.TB, epubFilename string) ([]byte, error) {
 			break
 
 		} else if strings.HasPrefix(i.Name(), testEpubcheckPrefix) {
-			if i.Mode().IsDir() {
+			if i.IsDir() {
 				pathToEpubcheck = filepath.Join(i.Name(), testEpubcheckJarfile)
 				if _, err := os.Stat(pathToEpubcheck); err == nil {
 					break
@@ -1170,4 +1169,21 @@ func writeAndExtractEpub(t testing.TB, e *Epub, epubFilename string) string {
 	}
 
 	return tempDir
+}
+
+// Test that error messages are correctly formatted
+func TestErrorMessages(t *testing.T) {
+	// Test FilenameAlreadyUsedError.Error()
+	err1 := &FilenameAlreadyUsedError{Filename: "test.css"}
+	expected1 := "Filename already used: test.css"
+	if err1.Error() != expected1 {
+		t.Errorf("FilenameAlreadyUsedError.Error() = %q, want %q", err1.Error(), expected1)
+	}
+
+	// Test ParentDoesNotExistError.Error()
+	err2 := &ParentDoesNotExistError{Filename: "parent.xhtml"}
+	expected2 := "Parent with the internal filename parent.xhtml does not exist"
+	if err2.Error() != expected2 {
+		t.Errorf("ParentDoesNotExistError.Error() = %q, want %q", err2.Error(), expected2)
+	}
 }

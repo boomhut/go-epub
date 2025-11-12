@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -38,14 +39,23 @@ func ReadFile(fs Storage, name string) ([]byte, error) {
 	return ioutil.ReadAll(f)
 }
 func MkdirAll(fs Storage, dir string, perm fs.FileMode) error {
+	// Normalize the path to use forward slashes for consistency across platforms
+	dir = filepath.ToSlash(filepath.Clean(dir))
+
+	// Build list of all directories to create from deepest to shallowest
 	list := make([]string, 0)
-	stop := ""
-	for dir := filepath.Dir(dir); dir != stop; dir = filepath.Dir(dir) {
-		list = append(list, dir)
-		stop = dir
+	for d := dir; d != "." && d != "/" && d != ""; d = path.Dir(d) {
+		list = append(list, d)
+		// Prevent infinite loop if path.Dir returns the same value
+		parent := path.Dir(d)
+		if parent == d {
+			break
+		}
 	}
-	for i := len(list); i > 0; i-- {
-		err := fs.Mkdir(list[i-1], perm)
+
+	// Create directories from shallowest to deepest (reverse order)
+	for i := len(list) - 1; i >= 0; i-- {
+		err := fs.Mkdir(list[i], perm)
 		if err != nil && !os.IsExist(err) {
 			return err
 		}

@@ -71,3 +71,35 @@ func testWriteToErrors(t *testing.T, e *Epub, adder func(string, string) (string
 		t.Fatal("Expected error")
 	}
 }
+
+// Test that UnableToCreateEpubError.Error() is correctly formatted
+func TestUnableToCreateEpubErrorMessage(t *testing.T) {
+	err := &UnableToCreateEpubError{
+		Path: "/invalid/path/test.epub",
+		Err:  io.ErrClosedPipe,
+	}
+	errStr := err.Error()
+	if errStr == "" {
+		t.Error("UnableToCreateEpubError.Error() returned empty string")
+	}
+	// Just verify it contains key information
+	expectedSubstrings := []string{"/invalid/path/test.epub", "Error creating EPUB"}
+	for _, substr := range expectedSubstrings {
+		if !contains(errStr, substr) {
+			t.Errorf("UnableToCreateEpubError.Error() = %q, should contain %q", errStr, substr)
+		}
+	}
+}
+
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) && (s[:len(substr)] == substr || s[len(s)-len(substr):] == substr || containsMiddle(s, substr)))
+}
+
+func containsMiddle(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
+}
