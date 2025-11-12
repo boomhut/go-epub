@@ -1,5 +1,4 @@
 [![CI](https://github.com/boomhut/go-epub/workflows/CI/badge.svg)](https://github.com/boomhut/go-epub/actions)
-[![Coverage Status](https://coveralls.io/repos/github/boomhut/go-epub/badge.svg)](https://coveralls.io/github/boomhut/go-epub)
 [![Go Report Card](https://goreportcard.com/badge/github.com/boomhut/go-epub)](https://goreportcard.com/report/github.com/boomhut/go-epub)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/boomhut/go-epub/blob/master/LICENSE)
 [![GoDoc](https://godoc.org/github.com/boomhut/go-epub?status.svg)](https://godoc.org/github.com/boomhut/go-epub)
