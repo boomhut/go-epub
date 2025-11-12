@@ -235,7 +235,7 @@ func (e *Epub) AddImage(source string, imageFilename string) (string, error) {
 	return addMedia(e.Client, source, imageFilename, imageFileFormat, ImageFolderName, e.images)
 }
 
-// AddVideo adds an video to the EPUB and returns a relative path to the video
+// AddVideo adds a video to the EPUB and returns a relative path to the video
 // file that can be used in EPUB sections in the format:
 // ../VideoFolderName/internalFilename
 //
@@ -252,7 +252,7 @@ func (e *Epub) AddVideo(source string, videoFilename string) (string, error) {
 	return addMedia(e.Client, source, videoFilename, videoFileFormat, VideoFolderName, e.videos)
 }
 
-// AddAudio adds an audio to the EPUB and returns a relative path to the audio
+// AddAudio adds an audio file to the EPUB and returns a relative path to the audio
 // file that can be used in EPUB sections in the format:
 // ../AudioFolderName/internalFilename
 //
@@ -559,7 +559,7 @@ func (e *Epub) Title() string {
 	return e.title
 }
 
-// EmbedImages download <img> tags in EPUB and modify body to show images
+// EmbedImages downloads <img> tags in EPUB sections and rewrites references
 // file inside of EPUB:
 // ../ImageFolderName/internalFilename
 //

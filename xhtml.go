@@ -114,6 +114,7 @@ func (x *xhtml) setXmlnsEpub(xmlns string) {
 	x.xml.XmlnsEpub = xmlns
 }
 
+// Title returns the current document title.
 func (x *xhtml) Title() string {
 	return x.xml.Head.Title.Value
 }

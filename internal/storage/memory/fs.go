@@ -9,10 +9,12 @@ import (
 	"github.com/boomhut/go-epub/internal/storage"
 )
 
+// Memory implements storage.Storage in memory for tests and ephemeral usage.
 type Memory struct {
 	fs map[string]*file
 }
 
+// NewMemory returns an in-memory storage backend rooted at "/".
 func NewMemory() *Memory {
 	return &Memory{
 		fs: map[string]*file{

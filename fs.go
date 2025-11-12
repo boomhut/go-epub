@@ -8,6 +8,7 @@ import (
 	"github.com/boomhut/go-epub/internal/storage/osfs"
 )
 
+// FSType identifies the storage implementation backing the EPUB writer.
 type FSType int
 
 // filesystem is the current filesytem used as the underlying layer to manage the files.
@@ -15,14 +16,13 @@ type FSType int
 var filesystem storage.Storage = osfs.NewOSFS(os.TempDir())
 
 const (
-	// This defines the local filesystem
+	// OsFS defines the local filesystem implementation.
 	OsFS FSType = iota
-	// This defines the memory filesystem
+	// MemoryFS defines an in-memory filesystem implementation.
 	MemoryFS
 )
 
-// Use s as default storage/ This is typically used in an init function.
-// Default to local filesystem
+// Use sets the default storage backend. It defaults to the local filesystem.
 func Use(s FSType) {
 	switch s {
 	case OsFS:

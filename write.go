@@ -52,7 +52,7 @@ const (
 	xhtmlFolderName   = "xhtml"
 )
 
-// WriteTo the dest io.Writer. The return value is the number of bytes written. Any error encountered during the write is also returned.
+// WriteTo writes the EPUB archive to dst and returns the number of bytes persisted.
 func (e *Epub) WriteTo(dst io.Writer) (int64, error) {
 	e.Lock()
 	defer e.Unlock()
@@ -148,7 +148,7 @@ func (e *Epub) Write(destFilePath string) error {
 	return err
 }
 
-// Create the EPUB folder structure in a temp directory
+// createEpubFolders builds the EPUB folder structure in a temp directory.
 func createEpubFolders(rootEpubDir string) {
 	if err := filesystem.Mkdir(
 		filepath.Join(
@@ -180,7 +180,7 @@ func createEpubFolders(rootEpubDir string) {
 	}
 }
 
-// Write the contatiner file (container.xml), which mostly just points to the
+// writeContainerFile writes container.xml, which points to package.opf.
 // package file (package.opf)
 //
 // Sample: https://github.com/bmaupin/epub-samples/blob/master/minimal-v3plus2/META-INF/container.xml
@@ -202,8 +202,7 @@ func writeContainerFile(rootEpubDir string) {
 	}
 }
 
-// Write the CSS files to the temporary directory and add them to the package
-// file
+// writeCSSFiles saves CSS assets and registers them in the package file.
 func (e *Epub) writeCSSFiles(rootEpubDir string) error {
 	err := e.writeMedia(rootEpubDir, e.css, CSSFolderName)
 	if err != nil {
@@ -229,8 +228,7 @@ func (wc *writeCounter) Write(p []byte) (int, error) {
 	return n, nil
 }
 
-// Write the EPUB file itself by zipping up everything from a temp directory
-// The return value is the number of bytes written. Any error encountered during the write is also returned.
+// writeEpub zips the temp directory into dst and reports bytes written.
 func (e *Epub) writeEpub(rootEpubDir string, dst io.Writer) (int64, error) {
 	counter := &writeCounter{}
 	teeWriter := io.MultiWriter(counter, dst)
@@ -328,27 +326,27 @@ func (e *Epub) writeEpub(rootEpubDir string, dst io.Writer) (int64, error) {
 	return counter.Total, err
 }
 
-// Get fonts from their source and save them in the temporary directory
+// writeFonts downloads fonts into the temporary directory.
 func (e *Epub) writeFonts(rootEpubDir string) error {
 	return e.writeMedia(rootEpubDir, e.fonts, FontFolderName)
 }
 
-// Get images from their source and save them in the temporary directory
+// writeImages downloads images into the temporary directory.
 func (e *Epub) writeImages(rootEpubDir string) error {
 	return e.writeMedia(rootEpubDir, e.images, ImageFolderName)
 }
 
-// Get videos from their source and save them in the temporary directory
+// writeVideos downloads videos into the temporary directory.
 func (e *Epub) writeVideos(rootEpubDir string) error {
 	return e.writeMedia(rootEpubDir, e.videos, VideoFolderName)
 }
 
-// Get audios from their source and save them in the temporary directory
+// writeAudios downloads audio files into the temporary directory.
 func (e *Epub) writeAudios(rootEpubDir string) error {
 	return e.writeMedia(rootEpubDir, e.audios, AudioFolderName)
 }
 
-// Get media from their source and save them in the temporary directory
+// writeMedia downloads media assets into the temporary directory.
 func (e *Epub) writeMedia(rootEpubDir string, mediaMap map[string]string, mediaFolderName string) error {
 	if len(mediaMap) > 0 {
 		mediaFolderPath := filepath.Join(rootEpubDir, contentFolderName, mediaFolderName)
@@ -401,7 +399,7 @@ func fixXMLId(id string) string {
 	return string(fixedId)
 }
 
-// Write the mimetype file
+// writeMimetype writes the mandatory mimetype declaration.
 //
 // Sample: https://github.com/bmaupin/epub-samples/blob/master/minimal-v3plus2/mimetype
 // Spec: http://www.idpf.org/epub/301/spec/epub-ocf.html#sec-zip-container-mime
@@ -417,8 +415,7 @@ func (e *Epub) writePackageFile(rootEpubDir string) {
 	e.pkg.write(rootEpubDir)
 }
 
-// Write the section files to the temporary directory and add the sections to
-// the TOC and package files
+// writeSections renders the section files and updates the TOC and package.
 func (e *Epub) writeSections(rootEpubDir string) {
 	var index int
 
@@ -471,8 +468,7 @@ func (e *Epub) writeSections(rootEpubDir string) {
 	}
 }
 
-// Write the TOC file to the temporary directory and add the TOC entries to the
-// package file
+// writeToc writes TOC artifacts and registers them in the package file.
 func (e *Epub) writeToc(rootEpubDir string) {
 	e.pkg.addToManifest(tocNavItemID, tocNavFilename, mediaTypeXhtml, tocNavItemProperties)
 	e.pkg.addToManifest(tocNcxItemID, tocNcxFilename, mediaTypeNcx, "")

@@ -24,6 +24,7 @@ type Storage interface {
 	Create(name string) (File, error)
 }
 
+// File represents a writable handle returned by Storage implementations.
 type File interface {
 	fs.File
 	io.Writer
@@ -38,6 +39,8 @@ func ReadFile(fs Storage, name string) ([]byte, error) {
 	defer f.Close()
 	return ioutil.ReadAll(f)
 }
+
+// MkdirAll mirrors os.MkdirAll for a Storage implementation.
 func MkdirAll(fs Storage, dir string, perm fs.FileMode) error {
 	// Normalize the path to use forward slashes for consistency across platforms
 	dir = filepath.ToSlash(filepath.Clean(dir))
